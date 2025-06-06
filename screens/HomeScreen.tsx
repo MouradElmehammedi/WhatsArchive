@@ -6,6 +6,7 @@ import * as FileSystem from "expo-file-system";
 import { Chat } from "../utils/types";
 import { loadConversations, saveConversation, deleteConversation, clearAllConversations } from "../utils/storage";
 import { parseChatFile } from "../utils/parsers";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Avatar = ({ name }: { name: string }) => {
   const initials = name
@@ -23,6 +24,7 @@ const Avatar = ({ name }: { name: string }) => {
 };
 
 const HomeScreen = ({ navigation }: { navigation: any }) => {
+  const { top } = useSafeAreaInsets();
   const [conversations, setConversations] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -171,11 +173,11 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>WhatsArchive Viewer</Text>
+    <View style={[styles.container, { paddingTop: top + 10 }]}>
+      <Text style={styles.title}>WhatsArchive</Text>
 
       <View style={styles.uploadSection}>
-        <Button title="Upload Chat File (.txt)" onPress={handleUpload} disabled={isLoading} />
+        <Button color="#075E54" title="Upload Chat File (.txt)" onPress={handleUpload} disabled={isLoading} />
         <Text style={styles.helpText}>
           📝 Currently supports individual WhatsApp chat export text files.{"\n"}
           💡 To export: Open WhatsApp → Chat → More → Export Chat → Without Media
@@ -187,7 +189,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
       {error && <Text style={styles.error}>{error}</Text>}
 
       <View style={styles.headerSection}>
-        <Text style={styles.sectionTitle}>Your Conversations</Text>
+        <Text style={styles.sectionTitle}>Conversations</Text>
         {conversations.length > 0 && (
           <TouchableOpacity onPress={handleClearAll}>
             <Text style={styles.clearAllButton}>Clear All</Text>
@@ -267,7 +269,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#075E54",
     justifyContent: "center",
     alignItems: "center",
   },

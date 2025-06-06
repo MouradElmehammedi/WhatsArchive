@@ -22,7 +22,7 @@ export default function App() {
     <ErrorBoundary>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
-          <Stack.Screen name="Home" component={HomeScreen} options={{ title: "WhatsArchive Viewer" }} />
+          <Stack.Screen name="Home" component={HomeScreen} options={{ title: "WhatsArchive", headerShown: false }} />
           <Stack.Screen name="Chat" component={ChatScreen} options={({ route }) => ({ title: route.params.contactName, headerShown: false })} />
         </Stack.Navigator>
       </NavigationContainer>
