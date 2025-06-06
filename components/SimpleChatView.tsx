@@ -8,18 +8,21 @@ interface SimpleChatViewProps {
   participants: string[];
   onScrollToTop?: () => void;
   onScrollToBottom?: () => void;
+  searchResults?: number[];
 }
 
 export interface SimpleChatViewRef {
   scrollToTop: () => void;
   scrollToBottom: () => void;
+  scrollToIndex: (index: number) => void;
 }
 
 const SimpleChatView = forwardRef<SimpleChatViewRef, SimpleChatViewProps>(({ 
   messages, 
   participants,
   onScrollToTop,
-  onScrollToBottom 
+  onScrollToBottom,
+  searchResults = []
 }, ref) => {
   const flatListRef = useRef<FlatList>(null);
 
@@ -33,6 +36,15 @@ const SimpleChatView = forwardRef<SimpleChatViewRef, SimpleChatViewProps>(({
         flatListRef.current?.scrollToEnd({ animated: true });
         onScrollToBottom?.();
       }
+    },
+    scrollToIndex: (index: number) => {
+      if (index >= 0 && index < messages.length) {
+        flatListRef.current?.scrollToIndex({
+          index,
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }
     }
   }));
 
@@ -43,6 +55,7 @@ const SimpleChatView = forwardRef<SimpleChatViewRef, SimpleChatViewProps>(({
         message={item}
         isCurrentUser={item.sender === "Mourad"}
         showSenderName={participants.length > 2} // Only show names in group chats
+        isHighlighted={searchResults.includes(index)}
       />
     );
   };

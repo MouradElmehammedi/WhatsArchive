@@ -7,9 +7,15 @@ interface ChatMessageProps {
   message: Message;
   isCurrentUser: boolean;
   showSenderName?: boolean;
+  isHighlighted?: boolean;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, isCurrentUser, showSenderName = true }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ 
+  message, 
+  isCurrentUser, 
+  showSenderName = true,
+  isHighlighted = false 
+}) => {
   const formatTimestamp = (date: Date | string | undefined) => {
     if (!date) return "Unknown time";
     
@@ -40,14 +46,24 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isCurrentUser, showS
   };
 
   return (
-    <View style={[styles.messageContainer, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
-      <View style={[styles.messageBubble, isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble]}>
+    <View style={[
+      styles.messageContainer, 
+      isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage,
+      isHighlighted && styles.highlightedMessage
+    ]}>
+      <View style={[
+        styles.messageBubble, 
+        isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
+        isHighlighted && styles.highlightedBubble
+      ]}>
         {!isCurrentUser && showSenderName && <Text style={styles.senderName}>{message.sender}</Text>}
 
         {message.isMedia ? (
           <MediaMessage message={message} />
         ) : (
-          <Text style={[styles.messageText, isCurrentUser ? styles.currentUserText : styles.otherUserText]}>{message.content}</Text>
+          <Text style={[styles.messageText, isCurrentUser ? styles.currentUserText : styles.otherUserText]}>
+            {message.content}
+          </Text>
         )}
 
         <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
@@ -87,6 +103,14 @@ const styles = StyleSheet.create({
   otherUserBubble: {
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 0,
+  },
+  highlightedMessage: {
+    backgroundColor: "rgba(255, 235, 59, 0.1)",
+    borderRadius: 8,
+  },
+  highlightedBubble: {
+    borderWidth: 2,
+    borderColor: "#FFEB3B",
   },
   senderName: {
     fontSize: 12,
