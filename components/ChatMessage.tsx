@@ -1,5 +1,14 @@
-import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Linking, 
+  Alert,
+  Clipboard,
+  Platform
+} from "react-native";
 import { Message } from "../utils/types";
 import MediaMessage from "./MediaMessage";
 
@@ -16,6 +25,8 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
   showSenderName = true,
   isHighlighted = false 
 }) => {
+  const [isPressed, setIsPressed] = useState(false);
+
   const formatTimestamp = (date: Date | string | undefined) => {
     if (!date) return "Unknown time";
     
@@ -45,31 +56,83 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
     }
   };
 
+  // URL detection regex
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+  // Split text into parts (text and URLs)
+  const renderMessageContent = (content: string) => {
+    const parts = content.split(urlRegex);
+    return parts.map((part, index) => {
+      if (part.match(urlRegex)) {
+        return (
+          <TouchableOpacity
+            key={index}
+            onPress={() => handleUrlPress(part)}
+            style={styles.linkContainer}
+          >
+            <Text style={styles.linkText}>{part}</Text>
+          </TouchableOpacity>
+        );
+      }
+      return <Text key={index}>{part}</Text>;
+    });
+  };
+
+  const handleUrlPress = async (url: string) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) {
+        await Linking.openURL(url);
+      } else {
+        Alert.alert("Error", "Cannot open this URL");
+      }
+    } catch (err) {
+      console.error("Error opening URL:", err);
+      Alert.alert("Error", "Failed to open URL");
+    }
+  };
+
+  const handleLongPress = () => {
+    if (message.content) {
+      Clipboard.setString(message.content);
+      Alert.alert("Copied", "Message copied to clipboard");
+    }
+  };
+
   return (
     <View style={[
       styles.messageContainer, 
       isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage,
       isHighlighted && styles.highlightedMessage
     ]}>
-      <View style={[
-        styles.messageBubble, 
-        isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
-        isHighlighted && styles.highlightedBubble
-      ]}>
-        {!isCurrentUser && showSenderName && <Text style={styles.senderName}>{message.sender}</Text>}
+      <TouchableOpacity
+        onLongPress={handleLongPress}
+        onPressIn={() => setIsPressed(true)}
+        onPressOut={() => setIsPressed(false)}
+        delayLongPress={500}
+        activeOpacity={0.7}
+      >
+        <View style={[
+          styles.messageBubble, 
+          isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble,
+          isHighlighted && styles.highlightedBubble,
+          isPressed && styles.pressedBubble
+        ]}>
+          {!isCurrentUser && showSenderName && <Text style={styles.senderName}>{message.sender}</Text>}
 
-        {message.isMedia ? (
-          <MediaMessage message={message} />
-        ) : (
-          <Text style={[styles.messageText, isCurrentUser ? styles.currentUserText : styles.otherUserText]}>
-            {message.content}
+          {message.isMedia ? (
+            <MediaMessage message={message} />
+          ) : (
+            <Text style={[styles.messageText, isCurrentUser ? styles.currentUserText : styles.otherUserText]}>
+              {renderMessageContent(message.content)}
+            </Text>
+          )}
+
+          <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
+            {formatTimestamp(message.timestamp)}
           </Text>
-        )}
-
-        <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
-          {formatTimestamp(message.timestamp)}
-        </Text>
-      </View>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -112,6 +175,9 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#FFEB3B",
   },
+  pressedBubble: {
+    opacity: 0.7,
+  },
   senderName: {
     fontSize: 12,
     fontWeight: "600",
@@ -139,6 +205,13 @@ const styles = StyleSheet.create({
   },
   otherUserTimestamp: {
     color: "#667781",
+  },
+  linkContainer: {
+    marginVertical: 2,
+  },
+  linkText: {
+    color: "#075E54",
+    textDecorationLine: "underline",
   },
 });
 
