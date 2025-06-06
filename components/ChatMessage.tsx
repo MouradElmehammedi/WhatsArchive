@@ -10,6 +10,35 @@ interface ChatMessageProps {
 }
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, isCurrentUser, showSenderName = true }) => {
+  const formatTimestamp = (date: Date | string | undefined) => {
+    if (!date) return "Unknown time";
+    
+    try {
+      const messageDate = typeof date === 'string' ? new Date(date) : date;
+      const now = new Date();
+      const isToday = messageDate.toDateString() === now.toDateString();
+      const isYesterday = new Date(now.setDate(now.getDate() - 1)).toDateString() === messageDate.toDateString();
+
+      const timeStr = messageDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      
+      if (isToday) {
+        return `Today, ${timeStr}`;
+      } else if (isYesterday) {
+        return `Yesterday, ${timeStr}`;
+      } else {
+        return messageDate.toLocaleDateString([], { 
+          month: 'short', 
+          day: 'numeric',
+          hour: "2-digit", 
+          minute: "2-digit"
+        });
+      }
+    } catch (err) {
+      console.error("Error formatting date:", err);
+      return "Invalid date";
+    }
+  };
+
   return (
     <View style={[styles.messageContainer, isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage]}>
       <View style={[styles.messageBubble, isCurrentUser ? styles.currentUserBubble : styles.otherUserBubble]}>
@@ -22,7 +51,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isCurrentUser, showS
         )}
 
         <Text style={[styles.timestamp, isCurrentUser ? styles.currentUserTimestamp : styles.otherUserTimestamp]}>
-          {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+          {formatTimestamp(message.timestamp)}
         </Text>
       </View>
     </View>
@@ -31,8 +60,9 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, isCurrentUser, showS
 
 const styles = StyleSheet.create({
   messageContainer: {
-    marginVertical: 4,
-    marginHorizontal: 16,
+    marginVertical: 2,
+    marginHorizontal: 8,
+    paddingHorizontal: 4,
   },
   currentUserMessage: {
     alignItems: "flex-end",
@@ -41,49 +71,50 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   messageBubble: {
-    maxWidth: "80%",
-    padding: 12,
-    borderRadius: 16,
+    maxWidth: "75%",
+    padding: 8,
+    borderRadius: 8,
     elevation: 1,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowRadius: 1,
   },
   currentUserBubble: {
-    backgroundColor: "#007AFF",
-    borderBottomRightRadius: 4,
+    backgroundColor: "#DCF8C6",
+    borderTopRightRadius: 0,
   },
   otherUserBubble: {
-    backgroundColor: "#F0F0F0",
-    borderBottomLeftRadius: 4,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 0,
   },
   senderName: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#666",
-    marginBottom: 4,
+    color: "#075E54",
+    marginBottom: 2,
   },
   messageText: {
     fontSize: 16,
     lineHeight: 20,
   },
   currentUserText: {
-    color: "white",
+    color: "#000000",
   },
   otherUserText: {
-    color: "#000",
+    color: "#000000",
   },
   timestamp: {
     fontSize: 11,
-    marginTop: 4,
+    marginTop: 2,
     opacity: 0.7,
+    alignSelf: "flex-end",
   },
   currentUserTimestamp: {
-    color: "rgba(255, 255, 255, 0.8)",
+    color: "#667781",
   },
   otherUserTimestamp: {
-    color: "#666",
+    color: "#667781",
   },
 });
 

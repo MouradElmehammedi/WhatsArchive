@@ -17,7 +17,6 @@ export const parseWhatsAppMessage = (line: string): ParsedMessage | null => {
 
   // Enhanced regex to match WhatsApp message format
   // [MM/DD/YY, HH:MM:SS] Contact Name: Message content
-  // Multiple patterns to handle different formats
   const patterns = [
     // Standard format: [3/30/24, 15:23:34] Khalid Elm: message
     /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s(\d{1,2}:\d{2}:\d{2})\]\s([^:]+?):\s(.*)$/,
@@ -95,19 +94,34 @@ export const parseChatFile = (
   messages: ParsedMessage[];
   participants: ChatParticipants;
 } => {
-  const lines = content.split("\n").filter((line) => line);
+  const lines = content.split("\n");
   const messages: ParsedMessage[] = [];
-
-  console.log(content);
+  let currentMessage: ParsedMessage | null = null;
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i].trim();
+    if (!line) continue;
+
     const parsed = parseWhatsAppMessage(line);
+    
     if (parsed) {
-      // Skip system messages about encryption
-      messages.push(parsed);
+      // If we have a current message, add it to messages array
+      if (currentMessage) {
+        messages.push(currentMessage);
+      }
+      currentMessage = parsed;
+    } else if (currentMessage) {
+      // If this line doesn't match the message pattern but we have a current message,
+      // append it to the current message's content
+      currentMessage.content += "\n" + line;
     }
   }
+
+  // Don't forget to add the last message
+  if (currentMessage) {
+    messages.push(currentMessage);
+  }
+
   const participants = extractChatParticipants(content);
 
   return {
