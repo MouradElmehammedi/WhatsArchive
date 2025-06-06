@@ -2,6 +2,8 @@ import React, { useMemo, useRef } from "react";
 import { View, StyleSheet, Text, SafeAreaView, StatusBar, ImageBackground, TouchableOpacity } from "react-native";
 import SimpleChatView, { SimpleChatViewRef } from "../components/SimpleChatView";
 import { Message } from "../utils/types";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useNavigation } from "@react-navigation/native";
 
 interface ChatScreenProps {
   route: {
@@ -14,6 +16,8 @@ interface ChatScreenProps {
 }
 
 const ChatScreen: React.FC<ChatScreenProps> = ({ route }: any) => {
+  const { top } = useSafeAreaInsets();
+  const navigation = useNavigation();
   const { chatData, contactName, participants } = route.params;
   const chatViewRef = useRef<SimpleChatViewRef>(null);
 
@@ -40,10 +44,18 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ route }: any) => {
       style={styles.container}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { paddingTop: top }]}>
         <StatusBar backgroundColor="#075E54" barStyle="light-content" />
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>{contactName}</Text>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity 
+              style={styles.navButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{contactName}</Text>
+          </View>
           <View style={styles.navButtons}>
             <TouchableOpacity 
               style={styles.navButton}
@@ -83,6 +95,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#128C7E",
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  backButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 6,
   },
   headerTitle: {
     fontSize: 18,
