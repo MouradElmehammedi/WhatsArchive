@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, forwardRef, useImperativeHandle } from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
 import { Message } from "../utils/types";
 import ChatMessage from "./ChatMessage";
@@ -6,9 +6,36 @@ import ChatMessage from "./ChatMessage";
 interface SimpleChatViewProps {
   messages: Message[];
   participants: string[];
+  onScrollToTop?: () => void;
+  onScrollToBottom?: () => void;
 }
 
-const SimpleChatView: React.FC<SimpleChatViewProps> = ({ messages, participants }) => {
+export interface SimpleChatViewRef {
+  scrollToTop: () => void;
+  scrollToBottom: () => void;
+}
+
+const SimpleChatView = forwardRef<SimpleChatViewRef, SimpleChatViewProps>(({ 
+  messages, 
+  participants,
+  onScrollToTop,
+  onScrollToBottom 
+}, ref) => {
+  const flatListRef = useRef<FlatList>(null);
+
+  useImperativeHandle(ref, () => ({
+    scrollToTop: () => {
+      flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
+      onScrollToTop?.();
+    },
+    scrollToBottom: () => {
+      if (messages.length > 0) {
+        flatListRef.current?.scrollToEnd({ animated: true });
+        onScrollToBottom?.();
+      }
+    }
+  }));
+
   const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     return (
       <ChatMessage
@@ -31,6 +58,7 @@ const SimpleChatView: React.FC<SimpleChatViewProps> = ({ messages, participants 
   return (
     <View style={styles.container}>
       <FlatList
+        ref={flatListRef}
         data={messages}
         renderItem={renderMessage}
         keyExtractor={(_, index) => `message-${index}`}
@@ -41,12 +69,11 @@ const SimpleChatView: React.FC<SimpleChatViewProps> = ({ messages, participants 
       />
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
+    flex: 1, 
   },
   messagesList: {
     flex: 1,
