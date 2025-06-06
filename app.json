@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "WhatsArchive",
-    "slug": "WhatsArchive",
+    "name": "iChatView",
+    "slug": "iChatView",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mourad.whatsarchive"
+      "bundleIdentifier": "com.mourad.iChatView"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,16 +22,21 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.mourad.whatsarchive",
-      "versionCode": 1
+      "package": "com.mourad.iChatView",
+      "versionCode": 1,
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
-        "projectId": "30d74f0d-3018-4526-a022-382280c1709f"
+        "projectId": "baf22104-0c2f-43b1-bef9-d7d2c094559f"
       }
-    }
+    },
+    "owner": "morad.elm9"
   }
 }

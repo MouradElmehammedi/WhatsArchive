@@ -174,7 +174,7 @@ const HomeScreen = ({ navigation }: { navigation: any }) => {
 
   return (
     <View style={[styles.container, { paddingTop: top + 10 }]}>
-      <Text style={styles.title}>WhatsArchive</Text>
+      <Text style={styles.title}>iChatView</Text>
 
       <View style={styles.uploadSection}>
         <Button color="#075E54" title="Upload Chat File (.txt)" onPress={handleUpload} disabled={isLoading} />
